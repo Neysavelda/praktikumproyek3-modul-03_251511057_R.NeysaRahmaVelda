@@ -1,5 +1,3 @@
-@csrf
-
 <div style="margin-bottom: 1rem;">
     <label for="title">Judul Kegiatan:</label><br>
     <input type="text" name="title" id="title" value="{{ old('title', $activity->title ?? '') }}" style="width: 100%; padding: 8px;">
@@ -18,7 +16,7 @@
 
 <div style="margin-bottom: 1rem;">
     <label for="activity_date">Tanggal Kegiatan:</label><br>
-    <input type="date" name="activity_date" id="activity_date" value="{{ old('activity_date', isset($activity) ? \Carbon\Carbon::parse($activity->activity_date)->format('Y-m-d') : '') }}" style="width: 100%; padding: 8px;">
+    <input type="date" name="activity_date" id="activity_date" value="{{ old('activity_date', isset($activity->activity_date) ? \Carbon\Carbon::parse($activity->activity_date)->format('Y-m-d') : '') }}" style="width: 100%; padding: 8px;">
     @error('activity_date')
         <small style="color: red;">{{ $message }}</small>
     @enderror
@@ -35,7 +33,6 @@
 <div style="margin-bottom: 1rem;">
     <label for="status">Status:</label><br>
     <select name="status" id="status" style="width: 100%; padding: 8px;">
-        <option value="">-- Pilih Status --</option>
         <option value="Planned" {{ old('status', $activity->status ?? '') == 'Planned' ? 'selected' : '' }}>Planned</option>
         <option value="Ongoing" {{ old('status', $activity->status ?? '') == 'Ongoing' ? 'selected' : '' }}>Ongoing</option>
         <option value="Done" {{ old('status', $activity->status ?? '') == 'Done' ? 'selected' : '' }}>Done</option>

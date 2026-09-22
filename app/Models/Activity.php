@@ -2,22 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Activity extends Model
 {
-       protected $fillable = [
-       'title',
-       'description',
-       'activity_date',
-       'category',
-       'status',
-   ];
+    use HasFactory;
 
-   protected function casts(): array
-   {
-       return [
-           'activity_date' => 'date',
-       ];
-   }
+    protected $fillable = [
+        'title',
+        'description',
+        'activity_date',
+        'category',
+        'status',
+    ];
 }
