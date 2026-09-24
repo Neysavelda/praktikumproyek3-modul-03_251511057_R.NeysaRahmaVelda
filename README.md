@@ -1,58 +1,119 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Activity Manager
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi manajemen kegiatan berbasis Laravel yang dikembangkan sebagai bagian dari mata kuliah Proyek 3, Modul 3 (Frameworks in Programming – Laravel Basic).
 
-## About Laravel
+**Mahasiswa:** R. Neysa Rahma Velda
+**NIM:** 251511057
+**Kelas:** D3 - 2B
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tentang Aplikasi
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Activity Manager v1 adalah aplikasi CRUD sederhana untuk mengelola data kegiatan kampus. Aplikasi ini dibangun menggunakan Laravel 13 dengan menerapkan pemisahan tanggung jawab antara route, controller, Form Request, dan Blade view sesuai prinsip yang diajarkan pada Modul 3.
 
-## Learning Laravel
+## Teknologi yang Digunakan
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Laravel 13**
+- **PHP 8.3**
+- **SQLite** sebagai database
+- **Blade** sebagai templating engine
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Cara Menjalankan Proyek
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+1. Clone repository ini:
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+   git clone https://github.com/Neysavelda/praktikumproyek3-modul-03_251511057_R.NeysaRahmaVelda
+   cd praktikumproyek3-modul-03_251511057_R.NeysaRahmaVelda
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+2. Install dependency PHP melalui Composer:
+```bash
+   composer install
+```
 
-## Contributing
+3. Salin file environment:
+```bash
+   copy .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. Generate application key:
+```bash
+   php artisan key:generate
+```
 
-## Code of Conduct
+5. Buat file database SQLite kosong:
+```bash
+   type nul > database\database.sqlite
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. Jalankan migration untuk membuat struktur tabel:
+```bash
+   php artisan migrate
+```
 
-## Security Vulnerabilities
+7. Jalankan seeder untuk mengisi data kegiatan awal:
+```bash
+   php artisan db:seed --class=ActivitySeeder
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+8. Jalankan server pengembangan:
+```bash
+   php artisan serve
+```
 
-## License
+9. Buka browser dan akses:
+http://127.0.0.1:8000/activities
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Route Utama
+
+| Method | URL                      | Fungsi                              |
+|--------|--------------------------|--------------------------------------|
+| GET    | `/activities`            | Daftar kegiatan (mendukung filter `?status=Planned`) |
+| GET    | `/activities/create`     | Form tambah kegiatan                |
+| POST   | `/activities`            | Menyimpan kegiatan baru             |
+| GET    | `/activities/{id}`       | Detail satu kegiatan                |
+| GET    | `/activities/{id}/edit`  | Form ubah kegiatan                  |
+| PUT    | `/activities/{id}`       | Menyimpan perubahan kegiatan        |
+| DELETE | `/activities/{id}`       | Menghapus kegiatan                  |
+
+## Fitur
+
+- CRUD kegiatan lengkap (tambah, lihat daftar, lihat detail, ubah, hapus)
+- Filter daftar kegiatan berdasarkan status melalui query string (`?status=Planned`)
+- Validasi input menggunakan Form Request (`StoreActivityRequest`, `UpdateActivityRequest`)
+- Layout Blade terpusat (`layouts.app`) digunakan secara konsisten di seluruh halaman
+- Struktur data kegiatan: judul, deskripsi, tanggal, kategori, dan status (Planned/Ongoing/Done)
+
+## Struktur Folder Penting
+app/
+├── Http/
+│ ├── Controllers/ActivityController.php
+│ └── Requests/
+│ ├── StoreActivityRequest.php
+│ └── UpdateActivityRequest.php
+└── Models/Activity.php
+
+database/
+├── migrations/..._create_activities_table.php
+└── seeders/ActivitySeeder.php
+
+resources/views/
+├── layouts/app.blade.php
+└── activities/
+├── index.blade.php
+├── show.blade.php
+├── create.blade.php
+├── edit.blade.php
+└── _form.blade.php
+routes/web.php
+
+
+## Business Rules
+
+| ID | Aturan |
+|----|--------|
+| BR-01 | Judul kegiatan wajib diisi, 5–100 karakter |
+| BR-02 | Tanggal kegiatan wajib diisi dan valid |
+| BR-03 | Status hanya boleh bernilai Planned, Ongoing, atau Done |
