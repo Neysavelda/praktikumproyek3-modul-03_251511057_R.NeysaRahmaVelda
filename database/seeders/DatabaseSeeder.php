@@ -12,7 +12,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            ActivitySeeder::class,
+            CategorySeeder::class,
+            // Panggil ActivitySeeder di sini jika ada
         ]);
     }
 }
