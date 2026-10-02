@@ -34,7 +34,7 @@ class ActivityController extends Controller
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                      ->orWhere('description', 'like', "%{$search}%");
                 });
             })
             // Filter Kategori
@@ -45,10 +45,12 @@ class ActivityController extends Controller
                 fn ($query) => $query->where('status', $status)
             )
             // Sorting
-            ->when($sort === 'oldest', fn ($query) => $query->orderBy('created_at', 'asc'))
-            ->when($sort === 'latest', fn ($query) => $query->orderBy('created_at', 'desc'))
-            // Pagination dengan membawa parameter query (PENTING!)
-            ->paginate(5)
+           // Sorting berdasarkan tanggal kegiatan
+            ->when(in_array($sort, ['oldest', 'asc'], true), fn ($query) => $query->orderBy('activity_date', 'asc'))
+            ->when(in_array($sort, ['latest', 'desc'], true), fn ($query) => $query->orderBy('activity_date', 'desc'))
+            ->unless($sort, fn ($query) => $query->orderBy('activity_date', 'desc'))
+            // Pagination dengan membawa parameter query
+            ->paginate(2)
             ->withQueryString();
 
         $categories = Category::all();
@@ -97,5 +99,27 @@ class ActivityController extends Controller
         $activity->delete();
 
         return redirect()->route('activities.index')->with('success', 'Kegiatan berhasil dihapus');
+    }
+
+    public function destroyCategory(Category $category): RedirectResponse
+    {
+        if ($category->activities()->exists()) {
+            return redirect()->back()->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh kegiatan.');
+        }
+
+        $category->delete();
+        return redirect()->back()->with('success', 'Kategori berhasil dihapus.');
+    }
+
+    public function publish(Activity $activity, ActivityService $service)
+    {
+        $service->publish($activity);
+        return redirect()->back()->with('success', 'Kegiatan berhasil dipublikasikan!');
+    }
+
+    public function complete(Activity $activity, ActivityService $service)
+    {
+        $service->complete($activity);
+        return redirect()->back()->with('success', 'Kegiatan telah diselesaikan!');
     }
 }

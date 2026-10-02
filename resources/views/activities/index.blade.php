@@ -4,6 +4,18 @@
 
     <h1>Daftar Kegiatan</h1>
 
+    @if(session('error'))
+        <div style="background-color: #ffebee; color: red; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div style="background-color: #e8f5e9; color: green; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <!-- Tombol Tambah Kegiatan -->
     <a href="{{ route('activities.create') }}" style="display:inline-block; margin-bottom: 15px; padding: 8px 12px; background: green; color: white; text-decoration: none; border-radius: 4px;">+ Tambah Kegiatan</a>
 

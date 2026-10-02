@@ -3,40 +3,63 @@
 namespace App\Services;
 
 use App\Models\Activity;
-use DomainException;
+use Illuminate\Validation\ValidationException;
 
 class ActivityService
 {
-    public function create(array $data): Activity
-    {
-        return Activity::create($data);
-    }
-
     public function update(Activity $activity, array $data): Activity
     {
-        if (isset($data['status'])) {
-            $this->ensureValidTransition($activity->status, $data['status']);
+        $activity->update($data);
+        return $activity;
+    }
+
+    public function publish(Activity $activity): Activity
+    {
+        if ($activity->status !== 'draft') {
+            throw ValidationException::withMessages([
+                'publish' => 'Hanya kegiatan berstatus draft yang dapat dipublikasikan.'
+            ]);
         }
 
-        $activity->update($data);
+        $requiredFields = [
+            'category_id' => 'Kategori',
+            'code'        => 'Kode Kegiatan',
+            'title'       => 'Judul Kegiatan',
+            'location'    => 'Lokasi',
+            'start_at'    => 'Waktu Mulai',
+            'end_at'      => 'Waktu Selesai',
+            'capacity'    => 'Kapasitas',
+        ];
+
+        $missingFields = [];
+        foreach ($requiredFields as $field => $label) {
+            if (empty($activity->{$field})) {
+                $missingFields[] = $label;
+            }
+        }
+
+        if (!empty($missingFields)) {
+            $fieldsList = implode(', ', $missingFields);
+            throw ValidationException::withMessages([
+                'publish' => "Gagal mempublikasikan kegiatan. Field berikut harus diisi terlebih dahulu: {$fieldsList}."
+            ]);
+        }
+
+        $activity->update(['status' => 'published']);
 
         return $activity;
     }
 
-    private function ensureValidTransition(string $current, string $next): void
+    public function complete(Activity $activity): Activity
     {
-        if ($current === $next) {
-            return;
+        if ($activity->status !== 'published') {
+            throw ValidationException::withMessages([
+                'status' => 'Hanya kegiatan berstatus published yang dapat diselesaikan.'
+            ]);
         }
 
-        $allowedTransitions = [
-            'Planned' => ['Ongoing'],
-            'Ongoing' => ['Done'],
-            'Done' => [], // Status Done tidak boleh berpindah lagi
-        ];
+        $activity->update(['status' => 'completed']);
 
-        if (! in_array($next, $allowedTransitions[$current] ?? [])) {
-            throw new DomainException("Perubahan status dari '{$current}' ke '{$next}' tidak diperbolehkan.");
-        }
+        return $activity;
     }
 }
