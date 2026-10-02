@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; // <-- Import ini
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Activity extends Model
 {
-    use HasFactory, SoftDeletes; // <-- Pasang SoftDeletes di sini
+    use HasFactory, SoftDeletes;
 
     protected $guarded = [];
 
@@ -21,5 +21,10 @@ class Activity extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function registrations()
+    {
+        return $this->hasMany(Registration::class);
     }
 }

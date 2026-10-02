@@ -21,17 +21,13 @@ class ActivityController extends Controller
         $this->activityService = $activityService;
     }
 
-    public function index(Request $request)
-{
-    // 1. Mulai catat query SQL
-    \Illuminate\Support\Facades\DB::enableQueryLog();
+    public function index(Request $request): View
+    {
+        $activities = Activity::with('category')->paginate(5);
+        $categories = Category::all(); // <-- Tambahkan baris ini
 
-    // 2. Eksekusi query dengan eager loading (with category)
-    $activities = Activity::with('category')->paginate(5);
-
-    // 3. Tampilkan log query ke layar
-    dd(\Illuminate\Support\Facades\DB::getQueryLog());
-}
+        return view('activities.index', compact('activities', 'categories')); // <-- Pasang $categories di compact
+    }
 
     public function create(): View
     {
@@ -41,7 +37,8 @@ class ActivityController extends Controller
 
     public function store(StoreActivityRequest $request): RedirectResponse
     {
-        $this->activityService->create($request->validated());
+        // Menggunakan method createActivity pada service
+        $this->activityService->createActivity($request->validated());
 
         return redirect()->route('activities.index')->with('success', 'Kegiatan berhasil ditambahkan');
     }
@@ -61,7 +58,8 @@ class ActivityController extends Controller
     public function update(UpdateActivityRequest $request, Activity $activity): RedirectResponse
     {
         try {
-            $this->activityService->update($activity, $request->validated());
+            // Menggunakan method updateActivity pada service
+            $this->activityService->updateActivity($activity, $request->validated());
 
             return redirect()->route('activities.index')->with('success', 'Kegiatan berhasil diperbarui');
         } catch (DomainException $e) {

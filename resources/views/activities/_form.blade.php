@@ -50,18 +50,23 @@
     @enderror
 </div>
 
-<!-- Tanggal Mulai & Selesai -->
+<!-- Tanggal Mulai -->
 <div style="margin-bottom: 1rem;">
     <label for="start_at">Tanggal Mulai:</label><br>
-    <input type="datetime-local" name="start_at" id="start_at" value="{{ old('start_at', isset($activity->start_at) ? \Carbon\Carbon::parse($activity->start_at)->format('Y-m-d\TH:i') : '') }}" style="width: 100%; padding: 8px;">
+    <input type="datetime-local" name="start_at" id="start_at" 
+        value="{{ old('start_at', isset($activity->start_at) ? \Carbon\Carbon::parse($activity->start_at)->format('Y-m-d\TH:i') : '') }}" 
+        style="width: 100%; padding: 8px;">
     @error('start_at')
         <small style="color: red;">{{ $message }}</small>
     @enderror
 </div>
 
+<!-- Tanggal Selesai -->
 <div style="margin-bottom: 1rem;">
     <label for="end_at">Tanggal Selesai:</label><br>
-    <input type="datetime-local" name="end_at" id="end_at" value="{{ old('end_at', isset($activity->end_at) ? \Carbon\Carbon::parse($activity->end_at)->format('Y-m-d\TH:i') : '') }}" style="width: 100%; padding: 8px;">
+    <input type="datetime-local" name="end_at" id="end_at" 
+        value="{{ old('end_at', isset($activity->end_at) ? \Carbon\Carbon::parse($activity->end_at)->format('Y-m-d\TH:i') : '') }}" 
+        style="width: 100%; padding: 8px;">
     @error('end_at')
         <small style="color: red;">{{ $message }}</small>
     @enderror
@@ -88,6 +93,21 @@
         <small style="color: red;">{{ $message }}</small>
     @enderror
 </div>
+
+<div class="mb-3">
+    <label for="poster" class="form-label">Poster Kegiatan (Opsional, Max 2MB)</label>
+    <input type="file" name="poster" id="poster" class="form-control @error('poster') is-invalid @enderror" accept="image/*">
+    @error('poster')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
+@if(isset($activity) && $activity->poster_path)
+    <div class="mb-3">
+        <p class="text-muted mb-1">Poster saat ini:</p>
+        <img src="{{ asset('storage/' . $activity->poster_path) }}" alt="Poster" class="img-thumbnail" style="max-height: 150px;">
+    </div>
+@endif
 
 <button type="submit" style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Simpan</button>
 <a href="{{ route('activities.index') }}" style="margin-left: 10px;">Batal</a>

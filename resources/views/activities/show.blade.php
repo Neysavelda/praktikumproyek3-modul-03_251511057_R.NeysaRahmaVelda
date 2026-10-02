@@ -33,6 +33,10 @@
             </form>
         @endif
 
+        @if($activity->poster_path)
+            <img src="{{ asset('storage/' . $activity->poster_path) }}" alt="Poster Kegiatan" style="max-width: 300px; height: auto;">
+        @endif
+
         <!-- Tombol Complete (Khusus Published) -->
         @if($activity->status === 'published')
             <form action="{{ route('activities.complete', $activity) }}" method="POST" style="display:inline;">
