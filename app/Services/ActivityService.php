@@ -3,75 +3,39 @@
 namespace App\Services;
 
 use App\Models\Activity;
-use Illuminate\Validation\ValidationException;
+use App\Models\Registration;
+use Illuminate\Support\Facades\DB;
 
 class ActivityService
 {
-    public function update(Activity $activity, array $data): Activity
+    // ... method kamu yang sudah ada sebelumnya ...
+
+    public function registerParticipant(Activity $activity, array $data)
     {
-        $activity->update($data);
-        return $activity;
-    }
-
-    public function publish(Activity $activity): Activity
-    {
-        if ($activity->status !== 'draft') {
-            throw ValidationException::withMessages([
-                'publish' => 'Hanya kegiatan berstatus draft yang dapat dipublikasikan.'
-            ]);
-        }
-
-        $requiredFields = [
-            'category_id' => 'Kategori',
-            'code'        => 'Kode Kegiatan',
-            'title'       => 'Judul Kegiatan',
-            'location'    => 'Lokasi',
-            'start_at'    => 'Waktu Mulai',
-            'end_at'      => 'Waktu Selesai',
-            'capacity'    => 'Kapasitas',
-        ];
-
-        $missingFields = [];
-        foreach ($requiredFields as $field => $label) {
-            if (empty($activity->{$field})) {
-                $missingFields[] = $label;
-            }
-        }
-
-        if (!empty($missingFields)) {
-            $fieldsList = implode(', ', $missingFields);
-            throw ValidationException::withMessages([
-                'publish' => "Gagal mempublikasikan kegiatan. Field berikut harus diisi terlebih dahulu: {$fieldsList}."
-            ]);
-        }
-
-        $activity->update(['status' => 'published']);
-
-        return $activity;
-    }
-
-    public function complete(Activity $activity): Activity
-    {
+        // 1. Validasi aturan bisnis sebelum transaksi
         if ($activity->status !== 'published') {
-            throw ValidationException::withMessages([
-                'status' => 'Hanya kegiatan berstatus published yang dapat diselesaikan.'
-            ]);
+            throw new \Exception('Pendaftaran hanya untuk kegiatan yang published.');
+        }
+        if ($activity->start_at && $activity->start_at->isPast()) {
+            throw new \Exception('Pendaftaran ditolak karena kegiatan sudah lewat.');
+        }
+        if ($activity->registered_count >= $activity->capacity) {
+            throw new \Exception('Kapasitas kegiatan sudah penuh.');
         }
 
-        $activity->update(['status' => 'completed']);
+        // 2. Transaksi atomic
+        return DB::transaction(function () use ($activity, $data) {
+            $registration = Registration::create([
+                'activity_id'      => $activity->id,
+                'participant_name' => $data['participant_name'],
+                'email'            => $data['email'],
+                'registered_at'    => now(),
+            ]);
 
-        return $activity;
-    }
+            throw new \Exception('Simulasi error');
+            $activity->increment('registered_count');
 
-    public function restore($id): bool
-    {
-        $activity = Activity::onlyTrashed()->findOrFail($id);
-        return $activity->restore();
-    }
-
-    public function forceDelete($id): bool
-    {
-        $activity = Activity::onlyTrashed()->findOrFail($id);
-        return $activity->forceDelete();
+            return $registration;
+        });
     }
 }
