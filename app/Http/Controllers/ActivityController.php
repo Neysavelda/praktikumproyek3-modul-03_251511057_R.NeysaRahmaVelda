@@ -23,19 +23,37 @@ class ActivityController extends Controller
 
     public function index(Request $request): View
     {
-        $status = $request->query('status');
-        $validStatuses = ['Planned', 'Ongoing', 'Done'];
+        $search   = $request->query('search');
+        $category = $request->query('category_id');
+        $status   = $request->query('status');
+        $sort     = $request->query('sort', 'latest'); // default sorting terbaru
 
         $activities = Activity::query()
             ->with('category')
+            // Filter Search (Judul atau Deskripsi)
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            // Filter Kategori
+            ->when($category, fn ($query) => $query->where('category_id', $category))
+            // Filter Status
             ->when(
-                in_array($status, $validStatuses, true),
+                in_array($status, ['draft', 'published', 'completed'], true),
                 fn ($query) => $query->where('status', $status)
             )
-            ->orderBy('activity_date')
-            ->get();
+            // Sorting
+            ->when($sort === 'oldest', fn ($query) => $query->orderBy('created_at', 'asc'))
+            ->when($sort === 'latest', fn ($query) => $query->orderBy('created_at', 'desc'))
+            // Pagination dengan membawa parameter query (PENTING!)
+            ->paginate(5)
+            ->withQueryString();
 
-        return view('activities.index', compact('activities'));
+        $categories = Category::all();
+
+        return view('activities.index', compact('activities', 'categories'));
     }
 
     public function create(): View
