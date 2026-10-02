@@ -27,7 +27,7 @@ class ActivityController extends Controller
         $validStatuses = ['Planned', 'Ongoing', 'Done'];
 
         $activities = Activity::query()
-            ->with('category') // 2. Tambahkan eager loading agar tidak N+1
+            ->with('category')
             ->when(
                 in_array($status, $validStatuses, true),
                 fn ($query) => $query->where('status', $status)
@@ -40,7 +40,7 @@ class ActivityController extends Controller
 
     public function create(): View
     {
-        $categories = Category::all(); // 3. Ambil data kategori
+        $categories = Category::all();
         return view('activities.create', compact('categories'));
     }
 
@@ -53,13 +53,13 @@ class ActivityController extends Controller
 
     public function show(Activity $activity): View
     {
-        $activity->load('category'); // Load relasi kategori untuk detail
+        $activity->load('category');
         return view('activities.show', compact('activity'));
     }
 
     public function edit(Activity $activity): View
     {
-        $categories = Category::all(); // 4. Ambil data kategori
+        $categories = Category::all();
         return view('activities.edit', compact('activity', 'categories'));
     }
 

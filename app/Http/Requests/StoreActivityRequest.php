@@ -15,10 +15,13 @@ class StoreActivityRequest extends FormRequest
     {
         return [
             'category_id' => ['required', 'exists:categories,id'],
-            'title'         => ['required', 'string', 'min:5', 'max:100'],
-            'description'   => ['nullable', 'string'],
-            'activity_date' => ['required', 'date'],
-            'status'        => ['required', 'in:Planned,Ongoing,Done'],
+            'code'        => ['required', 'string', 'max:30', 'unique:activities,code'],
+            'title'       => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'location'    => ['nullable', 'string'],
+            'start_at'    => ['required', 'date'],
+            'end_at'      => ['required', 'date', 'after_or_equal:start_at'],
+            'capacity'    => ['required', 'integer', 'min:1', 'max:500'],
         ];
     }
 }

@@ -12,10 +12,13 @@ class Activity extends Model
 
     protected $fillable = [
         'category_id',
+        'code',
         'title',
-        'slug',
         'description',
-        'activity_date',
+        'location',
+        'start_at',
+        'end_at',
+        'capacity',
         'status',
     ];
 

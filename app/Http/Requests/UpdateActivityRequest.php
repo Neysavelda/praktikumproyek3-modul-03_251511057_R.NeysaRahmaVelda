@@ -2,30 +2,34 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateActivityRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return true; // Wajib diubah ke true agar request diizinkan
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        $activityId = $this->route('activity')?->id ?? $this->route('activity');
+
         return [
-            'title' => 'required|min:5|max:100',
-            'activity_date' => 'required|date',
-            'status' => 'required|in:Planned,Ongoing,Done',
+            'category_id' => ['required', 'exists:categories,id'],
+            'code'        => [
+                'required', 
+                'string', 
+                'max:30', 
+                Rule::unique('activities', 'code')->ignore($activityId)
+            ],
+            'title'       => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'location'    => ['nullable', 'string'],
+            'start_at'    => ['required', 'date'],
+            'end_at'      => ['required', 'date', 'after_or_equal:start_at'],
+            'capacity'    => ['required', 'integer', 'min:1', 'max:500'],
         ];
     }
 }
