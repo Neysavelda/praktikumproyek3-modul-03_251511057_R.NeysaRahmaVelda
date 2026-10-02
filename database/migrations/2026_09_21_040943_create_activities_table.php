@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('activity_date');
             $table->string('status', 20)->default('Planned');
+            $table->softDeletes(); // <-- TAMBAHKAN BARIS INI
             $table->timestamps();
         });
     }

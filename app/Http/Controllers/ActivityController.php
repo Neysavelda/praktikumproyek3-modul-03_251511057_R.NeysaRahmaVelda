@@ -21,42 +21,17 @@ class ActivityController extends Controller
         $this->activityService = $activityService;
     }
 
-    public function index(Request $request): View
-    {
-        $search   = $request->query('search');
-        $category = $request->query('category_id');
-        $status   = $request->query('status');
-        $sort     = $request->query('sort', 'latest'); // default sorting terbaru
+    public function index(Request $request)
+{
+    // 1. Mulai catat query SQL
+    \Illuminate\Support\Facades\DB::enableQueryLog();
 
-        $activities = Activity::query()
-            ->with('category')
-            // Filter Search (Judul atau Deskripsi)
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%");
-                });
-            })
-            // Filter Kategori
-            ->when($category, fn ($query) => $query->where('category_id', $category))
-            // Filter Status
-            ->when(
-                in_array($status, ['draft', 'published', 'completed'], true),
-                fn ($query) => $query->where('status', $status)
-            )
-            // Sorting
-           // Sorting berdasarkan tanggal kegiatan
-            ->when(in_array($sort, ['oldest', 'asc'], true), fn ($query) => $query->orderBy('activity_date', 'asc'))
-            ->when(in_array($sort, ['latest', 'desc'], true), fn ($query) => $query->orderBy('activity_date', 'desc'))
-            ->unless($sort, fn ($query) => $query->orderBy('activity_date', 'desc'))
-            // Pagination dengan membawa parameter query
-            ->paginate(2)
-            ->withQueryString();
+    // 2. Eksekusi query dengan eager loading (with category)
+    $activities = Activity::with('category')->paginate(5);
 
-        $categories = Category::all();
-
-        return view('activities.index', compact('activities', 'categories'));
-    }
+    // 3. Tampilkan log query ke layar
+    dd(\Illuminate\Support\Facades\DB::getQueryLog());
+}
 
     public function create(): View
     {
@@ -121,5 +96,23 @@ class ActivityController extends Controller
     {
         $service->complete($activity);
         return redirect()->back()->with('success', 'Kegiatan telah diselesaikan!');
+    }
+
+    public function trashed(): View
+    {
+        $activities = Activity::onlyTrashed()->with('category')->paginate(5);
+        return view('activities.trashed', compact('activities'));
+    }
+
+    public function restore($id): RedirectResponse
+    {
+        $this->activityService->restore($id);
+        return redirect()->route('activities.trashed')->with('success', 'Kegiatan berhasil dipulihkan!');
+    }
+
+    public function forceDelete($id): RedirectResponse
+    {
+        $this->activityService->forceDelete($id);
+        return redirect()->route('activities.trashed')->with('success', 'Kegiatan berhasil dihapus permanen!');
     }
 }

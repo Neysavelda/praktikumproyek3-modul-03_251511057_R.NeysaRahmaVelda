@@ -4,14 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes; // <-- Import ini
 
 class Activity extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes; // <-- Pasang SoftDeletes di sini
 
     protected $guarded = [];
 
-    // Tambahkan ini agar Laravel otomatis mengubah tanggal jadi Carbon object
     protected $casts = [
         'activity_date' => 'date',
         'start_at' => 'datetime',

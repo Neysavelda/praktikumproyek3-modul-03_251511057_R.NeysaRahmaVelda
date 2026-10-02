@@ -62,4 +62,16 @@ class ActivityService
 
         return $activity;
     }
+
+    public function restore($id): bool
+    {
+        $activity = Activity::onlyTrashed()->findOrFail($id);
+        return $activity->restore();
+    }
+
+    public function forceDelete($id): bool
+    {
+        $activity = Activity::onlyTrashed()->findOrFail($id);
+        return $activity->forceDelete();
+    }
 }

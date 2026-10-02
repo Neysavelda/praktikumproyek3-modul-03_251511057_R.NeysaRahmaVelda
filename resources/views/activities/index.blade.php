@@ -19,6 +19,10 @@
     <!-- Tombol Tambah Kegiatan -->
     <a href="{{ route('activities.create') }}" style="display:inline-block; margin-bottom: 15px; padding: 8px 12px; background: green; color: white; text-decoration: none; border-radius: 4px;">+ Tambah Kegiatan</a>
 
+    <a href="{{ route('activities.trashed') }}" style="background-color: #6c757d; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px; margin-left: 5px;">
+        🗑️ Sampah (Trash)
+    </a>
+
     <!-- Form Search, Filter Kategori, Filter Status, & Sort -->
     <form method="GET" action="{{ route('activities.index') }}" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
         
